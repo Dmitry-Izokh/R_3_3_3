@@ -80,7 +80,7 @@ namespace R_3_3_3
                             if (oldlenhthParametr.StorageType == StorageType.Double)
                             {
                                 double lengthValue = UnitUtils.ConvertFromInternalUnits(oldlenhthParametr.AsDouble(), /*UnitTypeId.Meters*/ DisplayUnitType.DUT_METERS);
-                                double length = oldlenhthParametr.AsDouble() * 1.1;
+                                double length = /*oldlenhthParametr*/lengthValue/*.AsDouble()*/ * 1.1;
                                 Parameter newlenhthParametr = pipeInstance.LookupParameter("Длинна труб с учетом коэф 1.1");
                                 newlenhthParametr.Set($"{length}");
                             }
