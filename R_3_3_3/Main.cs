@@ -50,6 +50,7 @@ namespace R_3_3_3
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Document doc = uidoc.Document;
 
+            // Код создания параметра
             var categorySet = new CategorySet();
             categorySet.Insert(Category.GetCategory(doc, BuiltInCategory.OST_PipeCurves));
             using (Transaction ts = new Transaction(doc, "Задайте параметр"))
@@ -60,8 +61,8 @@ namespace R_3_3_3
                 ts.Commit();
             }
 
-            IList<Pipe> pipeList = null;
-            
+            //Код заполнения нового параметра
+                IList<Pipe> pipeList = null;            
                 pipeList = new FilteredElementCollector(doc, doc.ActiveView.Id)
                 .OfCategory(BuiltInCategory.OST_PipeCurves)
                 .WhereElementIsNotElementType()
@@ -71,22 +72,28 @@ namespace R_3_3_3
                 using (Transaction ts = new Transaction(doc, "Задайте параметр"))
                 {
                     ts.Start();
-                    var pipeInstance = doc.GetElement(pipeList);
-                    Parameter oldlenhthParametr = pipeInstance.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
-                    double length = oldlenhthParametr.AsDouble() * 1.1;
-
-
-                    Parameter newlenhthParametr = pipeInstance.LookupParameter("Длинна труб с учетом коэф 1.1");
-                    newlenhthParametr.Set($"{length}");
-
+                    foreach (var pipeInstance in pipeList)
+                    {
+                        if (pipeInstance is Pipe)
+                        {
+                            Parameter oldlenhthParametr = pipeInstance.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
+                            if (oldlenhthParametr.StorageType == StorageType.Double)
+                            {
+                                double lengthValue = UnitUtils.ConvertFromInternalUnits(oldlenhthParametr.AsDouble(), /*UnitTypeId.Meters*/ DisplayUnitType.DUT_METERS);
+                                double length = oldlenhthParametr.AsDouble() * 1.1;
+                                Parameter newlenhthParametr = pipeInstance.LookupParameter("Длинна труб с учетом коэф 1.1");
+                                newlenhthParametr.Set($"{length}");
+                            }
+                        }
+                    }
 
                     ts.Commit();
-                }
-            
+                }          
                 
             return Result.Succeeded;
         }
 
+        // Метод для кода создания параметра
             private void CreateSharedParameter(Application application, Document doc,
                 string parameterName, CategorySet categorySet,
                 BuiltInParameterGroup builtInParameterGroup, bool isInstance)
