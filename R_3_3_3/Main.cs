@@ -94,31 +94,32 @@ namespace R_3_3_3
         }
 
         // Метод для кода создания параметра
-            private void CreateSharedParameter(Application application, Document doc,
-                string parameterName, CategorySet categorySet,
-                BuiltInParameterGroup builtInParameterGroup, bool isInstance)
+        private void CreateSharedParameter(Application application, Document doc,
+       string parameterName, CategorySet categorySet,
+       BuiltInParameterGroup builtInParameterGroup, bool isInstance)
+        {
+            DefinitionFile defFile = application.OpenSharedParameterFile();
+
+            if (defFile == null)
             {
-                DefinitionFile definitionFile = application.OpenSharedParameterFile();
-
-                if (definitionFile == null)
-                {
-                    TaskDialog.Show("Ошибка", "Не найден файл общих параметров");
-                    return;
-                }
-                Definition definition = definitionFile.Groups.SelectMany(group => group.Definitions)
-                    .FirstOrDefault(def => def.Name.Equals(parameterName));
-                if (definition == null)
-                {
-                    TaskDialog.Show("Ошибка", "Не найден указанный параметр");
-                    return;
-                }
-
-                Binding binding = application.Create.NewTypeBinding(categorySet);
-                if (isInstance)
-                    binding = application.Create.NewInstanceBinding(categorySet);
-                BindingMap map = doc.ParameterBindings;
-                map.Insert(definition, binding, builtInParameterGroup);
+                TaskDialog.Show("Ошибка", "Не найден файл общих параметров");
+                return;
             }
+            Definition definition = defFile.Groups
+                .SelectMany(group => group.Definitions)
+                .FirstOrDefault(def => def.Name.Equals(parameterName));
+            if (definition == null)
+            {
+                TaskDialog.Show("Ошибка", "Не найден указанный параметр");
+                return;
+            }
+
+            Binding binding = application.Create.NewTypeBinding(categorySet);
+            if (isInstance)
+                binding = application.Create.NewInstanceBinding(categorySet);
+            BindingMap map = doc.ParameterBindings;
+            map.Insert(definition, binding, builtInParameterGroup);
+        }
 
         }
     }
